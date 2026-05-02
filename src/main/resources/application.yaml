@@ -1,0 +1,24 @@
+server:
+  port: 8080
+spring:
+  application:
+    name:
+      currency-track-bot
+
+bot:
+  name:
+    currencyTrackBot
+  token:
+    ${TG_TOKEN}
+
+external-api:
+  belarus-bank-api:
+    base-url: https://belarusbank.by/api
+    connect-timeout: 1s
+    read-timeout: 2s
+  alfa-bank-api:
+    base-url: https://developerhub.alfabank.by:8273
+    connect-timeout: 1s
+    read-timeout: 2s
+
+
