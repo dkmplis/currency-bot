@@ -4,6 +4,7 @@ import bot.currencytrackbot.dtos.BelarusBankResponseDto;
 import bot.currencytrackbot.exceptions.ExternalClientException;
 import bot.currencytrackbot.exceptions.ExternalServerException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.resilience.annotation.Retryable;
@@ -27,6 +28,7 @@ public class BelarusBankClient {
         this.client = client;
     }
 
+    @Cacheable("belarusBank")
     @Retryable(includes = {ExternalServerException.class, ResourceAccessException.class},
             excludes = ExternalClientException.class)
     public List<BelarusBankResponseDto> getRate() {

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class AlfaBankMessageService implements ExchangeRateService, ConvertService {
-    private String lastMessage = BotConst.EXTERNAL_SERVICE_ERROR;
+
     private final AlfaBankClient client;
 
     @Override
@@ -31,20 +31,19 @@ public class AlfaBankMessageService implements ExchangeRateService, ConvertServi
             AlfaBankResponseDto responseDto = client.getRate();
             Map<String, AlfaBankResponseDto.AlfaRates> byCurrency =
                     responseDto.rates().stream()
-                    .filter(r -> Currency.BYN.name().equals(r.buyIso()))
-                    .filter(r -> Currency.USD.name().equals(r.sellIso())||
-                            Currency.EUR.name().equals(r.sellIso())||
-                            Currency.RUB.name().equals(r.sellIso()))
+                            .filter(r -> Currency.BYN.name().equals(r.buyIso()))
+                            .filter(r -> Currency.USD.name().equals(r.sellIso()) ||
+                                    Currency.EUR.name().equals(r.sellIso()) ||
+                                    Currency.RUB.name().equals(r.sellIso()))
                             .collect(Collectors.toMap(
                                     AlfaBankResponseDto.AlfaRates::sellIso,
                                     Function.identity(),
                                     (left, right) -> left
                             ));
-            lastMessage = format(byCurrency);
-            return lastMessage;
+            return format(byCurrency);
         } catch (ExternalClientException | ExternalServerException e) {
             log.error(e.getMessage(), e);
-            return lastMessage;
+            return BotConst.EXTERNAL_SERVICE_ERROR;
         }
     }
 
@@ -65,7 +64,7 @@ public class AlfaBankMessageService implements ExchangeRateService, ConvertServi
             return calculate(rate, amount, operations).toString();
         } catch (ExternalClientException | ExternalServerException e) {
             log.error(e.getMessage(), e);
-            return lastMessage;
+            return BotConst.EXTERNAL_SERVICE_ERROR;
         }
     }
 

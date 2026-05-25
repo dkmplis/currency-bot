@@ -4,6 +4,11 @@ spring:
   application:
     name:
       currency-track-bot
+  cache:
+    type: caffeine
+    cache-names: alfaRates, belarusRates
+    caffeine:
+      spec: expireAfterWrite=10m
 
 bot:
   name: currencyTrackBot

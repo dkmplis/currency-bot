@@ -4,6 +4,7 @@ import bot.currencytrackbot.dtos.AlfaBankResponseDto;
 import bot.currencytrackbot.exceptions.ExternalClientException;
 import bot.currencytrackbot.exceptions.ExternalServerException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class AlfaBankClient {
         this.client = client;
     }
 
+    @Cacheable("alfaBank")
     @Retryable(includes = {ExternalServerException.class, ResourceAccessException.class},
             excludes = ExternalClientException.class)
     public AlfaBankResponseDto getRate() {

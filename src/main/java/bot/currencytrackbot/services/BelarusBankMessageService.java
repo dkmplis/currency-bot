@@ -17,7 +17,6 @@ import java.util.List;
 @Slf4j
 public class BelarusBankMessageService implements ExchangeRateService {
 
-    private String lastMessage = BotConst.EXTERNAL_SERVICE_ERROR;
     private final BelarusBankClient belarusBankClient;
 
     @Override
@@ -28,7 +27,7 @@ public class BelarusBankMessageService implements ExchangeRateService {
                     belarusBankClient.getRate();
             BelarusBankResponseDto firstDto = response.get(0);
 
-            lastMessage = BotConst.EXCHANGE_RATE_RESPONSE.formatted(
+            return BotConst.EXCHANGE_RATE_RESPONSE.formatted(
                     normalizeRate(firstDto.usdIn()),
                     normalizeRate(firstDto.usdOut()),
                     normalizeRate(firstDto.eurIn()),
@@ -36,10 +35,9 @@ public class BelarusBankMessageService implements ExchangeRateService {
                     normalizeRate(firstDto.rubIn()),
                     normalizeRate(firstDto.rubOut())
             );
-            return lastMessage;
         } catch (ExternalClientException | ExternalServerException e) {
             log.error(e.getMessage(), e);
-            return lastMessage;
+            return BotConst.EXTERNAL_SERVICE_ERROR;
         }
     }
 
