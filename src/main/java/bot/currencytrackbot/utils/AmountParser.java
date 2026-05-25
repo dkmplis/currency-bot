@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public final class AmountParser {
 
-    private static final String AMOUNT_PATTERN = "^-?\\d+(\\.\\d{1,2})?$";
+    private static final String AMOUNT_PATTERN = "^\\d+(\\.\\d{1,2})?$";
 
     public static BigDecimal parseAmount(String raw) {
         if (raw == null) {
