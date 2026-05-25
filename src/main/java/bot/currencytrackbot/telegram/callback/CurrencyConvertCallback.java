@@ -7,6 +7,7 @@ import bot.currencytrackbot.contexts.UserConversionContext;
 import bot.currencytrackbot.services.ConvertService;
 import bot.currencytrackbot.telegram.keyboard.MenuKeyboardGenerator;
 import bot.currencytrackbot.utils.BotConst;
+import bot.currencytrackbot.utils.MessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -23,35 +24,46 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class CurrencyConvertCallback implements Callback{
+public class CurrencyConvertCallback implements Callback {
     private static final Set<String> DATA = Arrays.stream(Currency.values())
             .map(Enum::name)
-            .collect(Collectors.toSet());;
+            .collect(Collectors.toSet());
     private final ContextRegistry<UserConversionContext> conversionContext;
     private final ContextRegistry<BankType> bankContext;
     private final MenuKeyboardGenerator keyboardGenerator;
     private final Map<BankType, ConvertService> services;
+    private final MessageFactory messageFactory;
 
     public CurrencyConvertCallback(
             @Qualifier("userConversionContextRegistry")
             ContextRegistry<UserConversionContext> conversionContext,
             @Qualifier("bankSelectedContextRegistry") ContextRegistry<BankType> bankContext,
             MenuKeyboardGenerator keyboardGenerator,
-            List<ConvertService> services) {
+            List<ConvertService> services,
+            MessageFactory messageFactory) {
         this.conversionContext = conversionContext;
         this.bankContext = bankContext;
         this.keyboardGenerator = keyboardGenerator;
+        this.messageFactory = messageFactory;
         this.services = new EnumMap<>(BankType.class);
         services.forEach(s ->
                 this.services.put(s.getBankType(), s)
         );
     }
+
     @Override
     public BotApiMethod<?> apply(Update update) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         String data = update.getCallbackQuery().getData();
         Currency currency = Currency.valueOf(data);
+        BankType bankType = bankContext.getContext(chatId);
+        if (bankType == null) {
+            return messageFactory.expired_session_bank_selected_message(chatId);
+        }
         UserConversionContext userContext = conversionContext.getContext(chatId);
+        if (userContext == null) {
+            return messageFactory.expired_session_operation_selected_massage(chatId, bankType);
+        }
         if (userContext.getCurrencyFrom() == null) {
             userContext.setCurrencyFrom(currency);
             return EditMessageText.builder()
@@ -60,7 +72,6 @@ public class CurrencyConvertCallback implements Callback{
                     .text(BotConst.ENTER_AMOUNT)
                     .build();
         } else {
-            BankType bankType = bankContext.getContext(chatId);
             ConvertService service = services.get(bankType);
             if (service == null) {
                 log.error("Нету сервиса обслуживающего такой банк");
@@ -83,6 +94,6 @@ public class CurrencyConvertCallback implements Callback{
 
     @Override
     public boolean supports(String data) {
-         return DATA.contains(data);
+        return DATA.contains(data);
     }
 }

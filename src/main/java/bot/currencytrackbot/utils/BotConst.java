@@ -8,14 +8,13 @@ public class BotConst {
             "Неизвестная команда";
     public static final String EXCHANGE_RATE_RESPONSE =
             """
-                Курсы валют
+                    Курсы валют
+                    
+                    USD: покупка %s | продажа %s
+                    EUR: покупка %s | продажа %s
+                    RUB: покупка %s | продажа %s
+                    """;
 
-                USD: покупка %s | продажа %s
-                EUR: покупка %s | продажа %s
-                RUB: покупка %s | продажа %s
-                """;
-
-    public static final String BUTTON_NAME_EXCHANGE_RATE = "Курс валют";
     public static final String BUTTON_NAME_RETURN_MENU_BANK_SELECTIONS =
             "Выбор банка";
 
@@ -32,5 +31,7 @@ public class BotConst {
     public static final String ENTER_AMOUNT = "Введите сумму";
     public static final String INVALID_AMOUNT =
             "Некорректная сумма, введите другую:";
+    public static final String EXPIRED_SESSION_ERROR =
+            "Время сессии истекло. Пожалуйста, начните заново.";
 }
 

@@ -6,6 +6,7 @@ import bot.currencytrackbot.utils.Capability;
 import bot.currencytrackbot.services.ExchangeRateService;
 import bot.currencytrackbot.telegram.keyboard.MenuKeyboardGenerator;
 import bot.currencytrackbot.utils.BotConst;
+import bot.currencytrackbot.utils.MessageFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethod;
@@ -23,12 +24,15 @@ public class ExchangeTrackCallback implements Callback {
     private final MenuKeyboardGenerator keyboardGenerator;
     private final Map<BankType, ExchangeRateService> services;
     private final BankSelectedContextRegistry bankSelectedContext;
+    private final MessageFactory messageFactory;
 
     public ExchangeTrackCallback(List<ExchangeRateService> services,
                                  MenuKeyboardGenerator keyboardGenerator,
-                                 BankSelectedContextRegistry bankSelectedContext) {
+                                 BankSelectedContextRegistry bankSelectedContext,
+                                 MessageFactory messageFactory) {
            this.bankSelectedContext = bankSelectedContext;
            this.keyboardGenerator = keyboardGenerator;
+           this.messageFactory = messageFactory;
            this.services = new EnumMap<>(BankType.class);
            services.forEach(s ->
                    this.services.put(s.getBankType(), s)
@@ -40,6 +44,9 @@ public class ExchangeTrackCallback implements Callback {
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         BankType bankType =
                 bankSelectedContext.getContext(chatId);
+        if (bankType == null) {
+            return messageFactory.expired_session_bank_selected_message(chatId);
+        }
         ExchangeRateService service = services.get(bankType);
         if (service == null) {
             log.error("Нету сервиса обслуживающего такой банк");

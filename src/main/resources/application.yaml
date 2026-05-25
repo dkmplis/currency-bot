@@ -6,10 +6,8 @@ spring:
       currency-track-bot
 
 bot:
-  name:
-    currencyTrackBot
-  token:
-    ${TG_TOKEN}
+  name: currencyTrackBot
+  token: ${TG_TOKEN}
 
 external-api:
   belarus-bank-api:

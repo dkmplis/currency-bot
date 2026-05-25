@@ -23,6 +23,7 @@ public class BelarusBankMessageService implements ExchangeRateService {
     @Override
     public String getExchangeRate() {
         try {
+
             List<BelarusBankResponseDto> response =
                     belarusBankClient.getRate();
             BelarusBankResponseDto firstDto = response.get(0);

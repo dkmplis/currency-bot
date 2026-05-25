@@ -6,6 +6,7 @@ import bot.currencytrackbot.contexts.UserConversionContext;
 import bot.currencytrackbot.telegram.keyboard.MenuKeyboardGenerator;
 import bot.currencytrackbot.utils.AmountParser;
 import bot.currencytrackbot.utils.BotConst;
+import bot.currencytrackbot.utils.MessageFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethod;
@@ -18,15 +19,18 @@ public class ConValueText implements FreeText{
     private final MenuKeyboardGenerator keyboardGenerator;
     private final ContextRegistry<UserConversionContext> contextRegistry;
     private final ContextRegistry<BankType> bankTypeContextRegistry;
+    private final MessageFactory messageFactory;
 
     public ConValueText(@Qualifier("userConversionContextRegistry")
                         ContextRegistry<UserConversionContext> contextRegistry,
                         @Qualifier("bankSelectedContextRegistry")
                         ContextRegistry<BankType> bankTypeContextRegistry,
-                        MenuKeyboardGenerator keyboardGenerator) {
+                        MenuKeyboardGenerator keyboardGenerator,
+                        MessageFactory messageFactory) {
         this.contextRegistry = contextRegistry;
         this.keyboardGenerator = keyboardGenerator;
         this.bankTypeContextRegistry = bankTypeContextRegistry;
+        this.messageFactory = messageFactory;
     }
 
     @Override
@@ -38,11 +42,7 @@ public class ConValueText implements FreeText{
             UserConversionContext context = contextRegistry.getContext(chatId);
             BankType type = bankTypeContextRegistry.getContext(chatId);
             if (type == null) {
-                return SendMessage.builder()
-                        .chatId(chatId)
-                        .text(BotConst.SELECT_BANK)
-                        .replyMarkup(keyboardGenerator.generateMenuBank())
-                        .build();
+                return messageFactory.expired_session_bank_selected_message(chatId);
             }
             if (context == null) {
                 return SendMessage.builder()
